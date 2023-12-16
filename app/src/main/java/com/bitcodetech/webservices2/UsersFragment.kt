@@ -13,6 +13,15 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.VolleyError
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.gson.Gson
+import org.json.JSONObject
 
 class UsersFragment : Fragment() {
 
@@ -20,6 +29,7 @@ class UsersFragment : Fragment() {
     private lateinit var recyclerUsers : RecyclerView
     private var users = ArrayList<User>()
     private lateinit var progressDialog : ProgressDialog
+    private lateinit var btnAddUserFragment : FloatingActionButton
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -31,7 +41,51 @@ class UsersFragment : Fragment() {
         showProgressDialog()
 
         initViews(view)
-        Worker( UsersHandler() ).execute()
+
+        //make volley request
+        /*val userApiRequest = StringRequest(
+            Request.Method.GET,
+            "https://reqres.in/api/users?page=1",
+            object : Response.Listener<String> {
+                override fun onResponse(response: String?) {
+                    Log.e("tag", response!!)
+                    val apiResponse = Gson().fromJson<ApiResponse>(response, ApiResponse::class.java)
+                    users.addAll(apiResponse!!.users!!)
+                    usersAdapter.notifyDataSetChanged()
+                    progressDialog.dismiss()
+                }
+            },
+            object : Response.ErrorListener {
+                override fun onErrorResponse(error: VolleyError?) {
+                    Log.e("tag", "${error?.message}")
+                }
+            }
+        )*/
+
+        val userApiRequest = JsonObjectRequest(
+            Request.Method.GET,
+            "https://reqres.in/api/users?page=1",
+            null,
+            object : Response.Listener<JSONObject> {
+                override fun onResponse(response: JSONObject?) {
+                    Log.e("tag", response!!.toString())
+                    val apiResponse = Gson().fromJson<ApiResponse>(response.toString(), ApiResponse::class.java)
+                    users.addAll(apiResponse!!.users!!)
+                    usersAdapter.notifyDataSetChanged()
+                    progressDialog.dismiss()
+                }
+            },
+            object : Response.ErrorListener {
+                override fun onErrorResponse(error: VolleyError?) {
+                    Log.e("tag", "${error?.message}")
+                }
+            }
+        )
+
+        /*val requestQueue = Volley.newRequestQueue(context)
+        requestQueue.add(userApiRequest)*/
+
+        VolleyRequestQueue.getRequestQueue(requireContext()).add(userApiRequest)
 
         return view
     }
@@ -49,25 +103,17 @@ class UsersFragment : Fragment() {
 
         usersAdapter = UsersAdapter(users)
         recyclerUsers.adapter = usersAdapter
-    }
 
-    private inner class UsersHandler : Handler() {
-        override fun handleMessage(msg: Message) {
-            super.handleMessage(msg)
+        btnAddUserFragment = view.findViewById(R.id.btnAddUserFragment)
 
-            if(msg.obj == null) {
-                Toast.makeText(requireActivity(), "Unable to fetch users!", Toast.LENGTH_SHORT).show()
-                return
-            }
-
-            val apiResponse = msg.obj as ApiResponse
-            users.addAll( apiResponse.users!! )
-            usersAdapter.notifyDataSetChanged()
-
-            Log.e("tag", "** ${apiResponse.page} ${apiResponse.per_page}**")
-
-            progressDialog.dismiss()
+        btnAddUserFragment.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .add(R.id.mainContainer, AddUserFragment(), null)
+                .addToBackStack(null)
+                .commit()
         }
     }
+
+
 
 }
