@@ -9,10 +9,10 @@ class Worker(
 ) : AsyncTask<Any?, Any?, Any?>() {
 
     override fun doInBackground(vararg p0: Any?): Any? {
-        val users = WebUtil.getUsers()
+        val apiResponse = WebUtil.getUsers()
 
         val message = Message()
-        message.obj = users
+        message.obj = apiResponse
 
         handler.sendMessage(message)
 

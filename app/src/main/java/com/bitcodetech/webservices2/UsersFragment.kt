@@ -4,6 +4,7 @@ import android.app.ProgressDialog
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,10 +16,9 @@ import androidx.recyclerview.widget.RecyclerView
 
 class UsersFragment : Fragment() {
 
-    private val users = ArrayList<User>()
     private lateinit var usersAdapter: UsersAdapter
     private lateinit var recyclerUsers : RecyclerView
-
+    private var users = ArrayList<User>()
     private lateinit var progressDialog : ProgressDialog
 
     override fun onCreateView(
@@ -60,10 +60,12 @@ class UsersFragment : Fragment() {
                 return
             }
 
-            users.addAll( msg.obj as ArrayList<User>)
+            val apiResponse = msg.obj as ApiResponse
+            users.addAll( apiResponse.users!! )
             usersAdapter.notifyDataSetChanged()
 
-            Toast.makeText(requireActivity(), "Got ${users.size} users", Toast.LENGTH_SHORT).show()
+            Log.e("tag", "** ${apiResponse.page} ${apiResponse.per_page}**")
+
             progressDialog.dismiss()
         }
     }

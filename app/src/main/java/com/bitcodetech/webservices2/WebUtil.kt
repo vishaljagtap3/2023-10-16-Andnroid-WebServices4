@@ -11,7 +11,7 @@ import java.net.URL
 class WebUtil {
     companion object {
 
-        fun getUsers() : ArrayList<User>? {
+        fun getUsers() : ApiResponse? {
 
             val httpURLConnection = URL("https://reqres.in/api/users?page=2")
                 .openConnection() as HttpURLConnection
@@ -39,32 +39,13 @@ class WebUtil {
 
             Log.e("tag", responseBuffer.toString())
 
-            val jResponse = JSONObject(responseBuffer.toString())
-            val totalRecords = jResponse.getInt("total")
-
-            val jUsers = jResponse.getJSONArray("data")
-
-            val users = ArrayList<User>()
-
-            for (i in 0..jUsers.length() - 1) {
-                val jUser = jUsers.getJSONObject(i)
-
-                users.add(
-                    User(
-                        jUser.getInt("id"),
-                        jUser.getString("email"),
-                        jUser.getString("first_name"),
-                        jUser.getString("last_name"),
-                        jUser.getString("avatar"),
-                        getWebImage(jUser.getString("avatar"))
-                    )
+            val gson = Gson()
+            val apiResponse =
+                gson.fromJson<ApiResponse>(
+                    responseBuffer.toString(), ApiResponse::class.java
                 )
 
-            }
-
-            Log.e("tag", "")
-
-            return users
+            return apiResponse
         }
 
         fun getWebImage(imageUrl : String) : Bitmap? {
