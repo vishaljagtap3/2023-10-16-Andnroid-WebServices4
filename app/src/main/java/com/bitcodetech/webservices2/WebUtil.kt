@@ -3,12 +3,14 @@ package com.bitcodetech.webservices2
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
+import com.google.gson.Gson
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 
 class WebUtil {
     companion object {
+
         fun getUsers() : ArrayList<User>? {
 
             val httpURLConnection = URL("https://reqres.in/api/users?page=2")

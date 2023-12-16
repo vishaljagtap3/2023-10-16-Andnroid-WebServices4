@@ -7,6 +7,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import com.bumptech.glide.Glide
 
 class UsersAdapter(
     private val users: ArrayList<User>
@@ -35,7 +36,15 @@ class UsersAdapter(
 
     override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
         val user = users[position]
-        holder.imgUser.setImageBitmap(user.avatarBitmap)
+
+        Glide.with(holder.imgUser)
+            .load(user.avatar)
+            .placeholder(R.mipmap.ic_launcher)
+            .error(R.mipmap.ic_launcher)
+            .circleCrop()
+            .into(holder.imgUser)
+
+        //holder.imgUser.setImageBitmap(user.avatarBitmap)
         holder.txtUserName.text = "${user.firstName} ${user.lastName}"
         holder.txtEmail.text = user.email
     }
